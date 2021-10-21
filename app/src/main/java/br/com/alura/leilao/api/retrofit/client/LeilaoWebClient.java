@@ -65,4 +65,10 @@ public class LeilaoWebClient {
         }
         return null;
     }
+
+    public boolean limpaBancoDeDados() throws IOException {
+        Call<Void> call = service.limpaBancoDeDados();
+        Response<Void> response = call.execute();
+        return response.isSuccessful();
+    }
 }
