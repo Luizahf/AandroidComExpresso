@@ -4,6 +4,8 @@ import static android.support.test.espresso.Espresso.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
 
+import static org.hamcrest.core.AllOf.allOf;
+
 import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
 
@@ -14,7 +16,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import br.com.alura.leilao.R;
 import br.com.alura.leilao.api.retrofit.client.LeilaoWebClient;
+import br.com.alura.leilao.formatter.FormatadorDeMoeda;
 import br.com.alura.leilao.model.Leilao;
 
 public class ListaLeilaoTelaTest {
@@ -22,6 +26,7 @@ public class ListaLeilaoTelaTest {
     @Rule
     public ActivityTestRule<ListaLeilaoActivity> activity = new ActivityTestRule<>(ListaLeilaoActivity.class, true, false);
     private final LeilaoWebClient webClient = new LeilaoWebClient();
+    private final String formato = new FormatadorDeMoeda().formata(0.00);
 
     @Before
     public void setup() throws IOException {
@@ -37,7 +42,9 @@ public class ListaLeilaoTelaTest {
 
         activity.launchActivity(new Intent());
 
-        onView(withText("Carro")).check(matches(isDisplayed()));
+        onView(allOf(withText("Carro"), withId(R.id.item_leilao_descricao))).check(matches(isDisplayed()));
+
+        onView(allOf(withText(formato), withId(R.id.item_leilao_maior_lance))).check(matches(isDisplayed()));
     }
 
     @Test
@@ -51,6 +58,8 @@ public class ListaLeilaoTelaTest {
         activity.launchActivity(new Intent());
 
         tentaSalvarLeilaoNaApi(new Leilao("Carro"), new Leilao("Computador"));
+        onView(allOf(withText("Carro"), withId(R.id.item_leilao_descricao))).check(matches(isDisplayed()));
+        onView(allOf(withText("Computador"), withId(R.id.item_leilao_descricao))).check(matches(isDisplayed()));
     }
 
     private void tentaSalvarLeilaoNaApi(Leilao... leiloes) throws IOException {
