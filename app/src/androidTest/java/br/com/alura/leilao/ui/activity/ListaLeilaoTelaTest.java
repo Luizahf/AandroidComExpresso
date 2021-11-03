@@ -6,9 +6,17 @@ import static android.support.test.espresso.matcher.ViewMatchers.*;
 
 import static org.hamcrest.core.AllOf.allOf;
 
-import android.content.Intent;
-import android.support.test.rule.ActivityTestRule;
+import static br.com.alura.leilao.ui.activity.matchers.ViewMatcher.apareceLeilaoNaPosicao;
 
+import android.content.Intent;
+import android.support.test.espresso.matcher.BoundedMatcher;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.TextView;
+
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +34,6 @@ public class ListaLeilaoTelaTest {
     @Rule
     public ActivityTestRule<ListaLeilaoActivity> activity = new ActivityTestRule<>(ListaLeilaoActivity.class, true, false);
     private final LeilaoWebClient webClient = new LeilaoWebClient();
-    private final String formato = new FormatadorDeMoeda().formata(0.00);
 
     @Before
     public void setup() throws IOException {
@@ -42,24 +49,23 @@ public class ListaLeilaoTelaTest {
 
         activity.launchActivity(new Intent());
 
-        onView(allOf(withText("Carro"), withId(R.id.item_leilao_descricao))).check(matches(isDisplayed()));
-
-        onView(allOf(withText(formato), withId(R.id.item_leilao_maior_lance))).check(matches(isDisplayed()));
+        onView(withId(R.id.lista_leilao_recyclerview))
+                .check(matches(apareceLeilaoNaPosicao(0, "Carro", 0.00)));
     }
 
     @Test
     public void deve_AparecerDoisLeiloes_quando_CarregarDoisLeiloesNaApi() throws IOException {
-        Leilao carroSalvo = webClient.salva(new Leilao("Carro"));
-        Leilao computadorSalvo = webClient.salva(new Leilao("Computador"));
-        if (carroSalvo == null || computadorSalvo == null) {
-            Assert.fail("Leilão não foi salvo.");
-        }
+        tentaSalvarLeilaoNaApi(
+                new Leilao("Carro"),
+                new Leilao("Computador"));
 
         activity.launchActivity(new Intent());
 
-        tentaSalvarLeilaoNaApi(new Leilao("Carro"), new Leilao("Computador"));
-        onView(allOf(withText("Carro"), withId(R.id.item_leilao_descricao))).check(matches(isDisplayed()));
-        onView(allOf(withText("Computador"), withId(R.id.item_leilao_descricao))).check(matches(isDisplayed()));
+        onView(withId(R.id.lista_leilao_recyclerview))
+                .check(matches(apareceLeilaoNaPosicao(0, "Carro", 0.00)));
+
+        onView(withId(R.id.lista_leilao_recyclerview))
+                .check(matches(apareceLeilaoNaPosicao(1, "Computador", 0.00)));
     }
 
     private void tentaSalvarLeilaoNaApi(Leilao... leiloes) throws IOException {
