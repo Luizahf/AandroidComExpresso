@@ -23,16 +23,26 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
+
+import br.com.alura.leilao.BaseTesteIntegracao;
 import br.com.alura.leilao.R;
 
-public class ListaUsuariosTelaTest {
+public class ListaUsuariosTelaTest extends BaseTesteIntegracao {
 
     @Rule
     public ActivityTestRule<ListaLeilaoActivity> mActivityTestRule = new ActivityTestRule<>(ListaLeilaoActivity.class);
 
+    @Before
+    public void setup() throws IOException {
+        limpaBancoDeDados();
+        limpaBancoDeDadosInterno();
+    }
     @Test
     public void deve_AparecerUsuarioNaListaDeUsuarios_quando_CadastrarUmUsuario() {
         onView(
@@ -91,5 +101,10 @@ public class ListaUsuariosTelaTest {
                         && view.equals(((ViewGroup) parent).getChildAt(position));
             }
         };
+    }
+    @After
+    public void teardown() throws IOException {
+        limpaBancoDeDados();
+        limpaBancoDeDadosInterno();
     }
 }

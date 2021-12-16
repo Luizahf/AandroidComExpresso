@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,25 +26,22 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import br.com.alura.leilao.BaseTesteIntegracao;
 import br.com.alura.leilao.R;
 import br.com.alura.leilao.api.retrofit.client.LeilaoWebClient;
 import br.com.alura.leilao.formatter.FormatadorDeMoeda;
 import br.com.alura.leilao.model.Leilao;
 
-public class ListaLeilaoTelaTest {
+public class ListaLeilaoTelaTest extends BaseTesteIntegracao {
 
     @Rule
     public ActivityTestRule<ListaLeilaoActivity> activity = new ActivityTestRule<>(ListaLeilaoActivity.class, true, false);
-    private final LeilaoWebClient webClient = new LeilaoWebClient();
 
     @Before
     public void setup() throws IOException {
-        boolean bancoDeDadosNaoFoiLimpo = !webClient.limpaBancoDeDados();
-        if (bancoDeDadosNaoFoiLimpo) {
-            Assert.fail("Banco de dados não foi limpo.");
-        }
+        limpaBancoDeDados();
+        limpaBancoDeDadosInterno();
     }
-
     @Test
     public void deve_AparecerUmLeilao_quando_CarregarUmLeilaoNaApi() throws IOException {
         tentaSalvarLeilaoNaApi(new Leilao("Carro"));
@@ -89,13 +87,9 @@ public class ListaLeilaoTelaTest {
                 .perform(RecyclerViewActions.scrollToPosition(9))
                 .check(matches(apareceLeilaoNaPosicao(9, "Casa", 0.00)));
     }
-
-    private void tentaSalvarLeilaoNaApi(Leilao... leiloes) throws IOException {
-        for (Leilao leilao : leiloes) {
-            Leilao leilaoSalvo = webClient.salva(leilao);
-            if (leilaoSalvo == null) {
-                Assert.fail("Leilão não foi salvo: " + leilao.getDescricao());
-            }
-        }
+    @After
+    public void teardown() throws IOException {
+        limpaBancoDeDados();
+        limpaBancoDeDadosInterno();
     }
 }
